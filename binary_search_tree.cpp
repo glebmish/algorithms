@@ -3,12 +3,11 @@ using namespace std;
 
 struct Node {
     int key;
-    Node *parent,
-         *left,
+    Node *left,
          *right;
 
-    Node (int _key, Node *_parent = NULL, Node *_left = NULL, Node *_right = NULL):
-            key(_key), parent(_parent), left(_left), right(_right) {}
+    Node (int _key, Node *_left = NULL, Node *_right = NULL):
+            key(_key), left(_left), right(_right) {}
 
     ~Node() {
         delete left;
@@ -22,14 +21,12 @@ public:
 
     BST(): root(NULL) {}
 
-    Node *search(int key) {
-        Node *cur = root;
-
-        while (cur != NULL && key != cur->key) {
-            if (key < cur->key)
-                cur = cur->left;
+    Node **search(Node **cur, int key) {
+        while (*cur != NULL && key != (*cur)->key) {
+            if (key < (*cur)->key)
+                cur = &((*cur)->left);
             else
-                cur = cur->right;
+                cur = &((*cur)->right);
         }
         return cur;
     }
@@ -46,85 +43,39 @@ public:
         return cur;
     }
 
-    Node *successor(Node *cur) {
-        if (cur->right != NULL)
-            return min(cur->right);
-
-        Node *parent = cur->parent;
-        while (parent != NULL && cur == parent->right) {
-            cur = parent;
-            parent = parent->parent;
-        }
-
-        return parent;
-    }
-
-    Node *predecessor(Node *cur) {
-        if (cur->left != NULL)
-            return max(cur->left);
-
-        Node *parent = cur->parent;
-        while (parent != NULL && cur == parent->left) {
-            cur = parent;
-            parent = parent->parent;
-        }
-
-        return parent;
-    }
-
     Node *insert(int key) {
-        Node *newNode = new Node(key),
-             *parent = NULL,
-             *place = root;
+        Node **toInsert = search(&root, key);
+        if (*toInsert == NULL)
+            *toInsert = new Node(key);
+        else
+            (*toInsert)->key = key;
 
-        while (place != NULL) {
-            parent = place;
-            if (newNode->key < place->key)
-                place = place->left;
+        return *toInsert;
+    }
+
+    void remove(Node *startFrom, int key) {
+        Node **toDelete = search(&startFrom, key);
+
+        if (*toDelete == NULL)
+            return;
+
+        if ((*toDelete)->left != NULL && (*toDelete)->right != NULL) {
+            int newKey = min((*toDelete)->right)->key;
+            remove(*toDelete, newKey);
+            (*toDelete)->key = newKey;
+        } else {
+            Node *tmpNode = *toDelete;
+
+            if ((*toDelete)->left == NULL)
+                *toDelete = (*toDelete)->right;
             else
-                place = place->right;
-        }
+                *toDelete = (*toDelete)->left;
 
-        newNode->parent = parent;
+            if (tmpNode == root)
+                root = NULL;
 
-        if (parent == NULL)
-            root = newNode;
-        else if (newNode->key < parent->key)
-            parent->left = newNode;
-        else
-            parent->right = newNode;
-
-        return newNode;
-    }
-
-    void transplant(Node *subroot, Node *trans) {
-        if (subroot->parent == NULL)
-            root = trans;
-        else if (subroot == subroot->parent->left)
-            subroot->parent->left = trans;
-        else
-            subroot->parent->right = trans;
-
-        if (trans != NULL)
-            trans->parent= subroot->parent;
-    }
-
-    void remove(Node *toDelete) {
-        if (toDelete->left == NULL)
-            this->transplant(toDelete, toDelete->right);
-        else if (toDelete->right == NULL)
-            this->transplant(toDelete, toDelete->left);
-        else {
-            Node *suc = this->min(toDelete->right);
-            if (suc->parent != toDelete) {
-                // for suc substree to be correct
-                this->transplant(suc, suc->right);
-                suc->right = toDelete->right;
-                suc->right->parent = suc;
-            }
-            this->transplant(toDelete, suc);
-            suc->left = toDelete->left;
-            suc->left->parent = suc;
+            tmpNode->right = tmpNode->left = NULL;
+            delete tmpNode;
         }
     }
 
@@ -141,25 +92,24 @@ public:
 
 int main() {
     BST tree;
-    tree.print(tree.root);
-    cout << endl;
 
     tree.insert(5);
+    tree.insert(2);
     tree.insert(10);
-    tree.insert(1);
+    tree.insert(9);
+    tree.insert(11);
 
     tree.print(tree.root);
     cout << endl;
 
-    cout << tree.min(tree.root)->key << " "
-         << tree.max(tree.root)->key << endl;
+    tree.remove(tree.root, 10);
+    tree.remove(tree.root, 11);
+    tree.remove(tree.root, 9);
+    tree.remove(tree.root, 2);
+    tree.remove(tree.root, 5);
 
-    Node *n7 = tree.insert(7);
-    tree.insert(8);
-    cout << tree.successor(n7)->key << " " << tree.predecessor(n7)->key << endl;
-
-    tree.remove(tree.search(8));
-    cout << tree.successor(n7)->key << endl;
+    tree.print(tree.root);
+    cout << endl;
 }
 
 
