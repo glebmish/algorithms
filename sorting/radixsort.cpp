@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 // O(n) average, worst and best
@@ -7,28 +8,28 @@ using namespace std;
 // stable
 // suitable only if max value is rather small
 
-void count_sort(string *begin, string *end, int pos) {
-    int count[256];
-    for (int i = 0; i < 256; ++i)
-        count[i] = 0;
+void count_sort(vector<string>& arr, int pos) {
+    vector<int> count(256, 0);
 
-    for (string *i = begin; i != end; ++i)
-        count[i[0][pos]]++;
-    for (int i = 1; i < 256; ++i)
+    for (int i = 0; i < arr.size(); ++i) {
+        count[arr[i][pos]]++;
+    }
+    for (int i = 1; i < 256; ++i) {
         count[i] += count[i - 1];
-
-    string *result = new string[end - begin];
-
-    // order is what makes countsort stable
-    for (string *i = end - 1; i >= begin; --i) {
-        result[count[i[0][pos]] - 1] = *i;
-        count[i[0][pos]]--;
     }
 
-    for (string *i = begin, *j = result; i < end; ++i, ++j)
-        *i = *j;
+    vector<string> result(arr.size());
 
-    delete[] result;
+    // order is what makes countsort stable
+    for (int i = arr.size() - 1; i >= 0; --i) {
+        int index = count[arr[i][pos]] - 1;
+        result[index] = arr[i];
+        count[arr[i][pos]]--;
+    }
+
+    for (int i = 0, j = 0; j < arr.size(); ++i, ++j) {
+        arr[i] = result[j];
+    }
 }
 
 // O(k*n) average, worst and best
@@ -36,23 +37,26 @@ void count_sort(string *begin, string *end, int pos) {
 // stable
 // suitable only if max value is rather small
 
-void radix_sort(string *begin, string *end, int len) {
-    for (int i = len - 1; i >= 0; --i)
-        count_sort(begin, end, i);
+void radix_sort(vector<string>& arr, int len) {
+    for (int i = len - 1; i >= 0; --i) {
+        count_sort(arr, i);
+    }
 }
 
 int main() {
     int n;
     cin >> n;
 
-    string arr[100];
-    for (int i = 0; i < n; ++i)
+    vector<string> arr(n);
+    for (int i = 0; i < n; ++i) {
         cin >> arr[i];
+    }
 
-    radix_sort(arr, arr + n, 3);
+    radix_sort(arr, 3);
 
-    for (int i = 0; i < n; ++i)
+    for (int i = 0; i < n; ++i) {
         cout << arr[i] << " ";
+    }
 
     return 0;
 }
