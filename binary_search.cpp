@@ -1,49 +1,27 @@
-#include <iostream>
-using namespace std;
+int bin_s(vector<int>& vec, int begin, int end, int val) {
+    int l = begin - 1, r = end - 1;
 
-// O(log(n))
-// works on sorted array (or monotonic function)
+    while (l < r) {
+        int m = l + (r - l + 1) / 2;
 
-// upper bound
-// comments for lower
-int *bin_search_upper(int val, int *begin, int *end) {
-    // l = begin - 1, r = end - 1
-    int *l = begin, *r = end;
-    while (r - l != 1) {
-        int *m = l + (r - l) / 2;
-
-        // m >= val
-        if (*m > val)
-            r = m;
-        else
+        if (vec[m] > val) {
+            r = m - 1;
+        } else {
             l = m;
+        }
     }
 
-    // r == val
-    if (*l == val)
-        // return r;
+    if (vec[l] == val) {
         return l;
-    else
-        return NULL;
+    } else {
+        return -1;
+    }
 }
 
 int main() {
-    int n;
-    cin >> n;
-
-    int arr[100];
-    for (int i = 0; i < n; ++i)
-        cin >> arr[i];
-
-    while (true) {
-        int val;
-        cin >> val;
-
-        int *pos = bin_search_upper(val, arr, arr + n);
-
-        if (pos == NULL)
-            cout << "none" << endl;
-        else
-            cout << pos - arr << endl;
-    }
+    vector<int> vec = {1, 2, 2, 2, 3, 4, 5};
+    cout << bin_s(vec, 0, vec.size(), 1);
+    cout << bin_s(vec, 0, vec.size(), 2);
+    cout << bin_s(vec, 0, vec.size(), 3);
+    cout << bin_s(vec, 0, vec.size(), 5);
 }

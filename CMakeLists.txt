@@ -3,5 +3,5 @@ project(algorithms)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES graphs/cut_vertexes.cpp)
+set(SOURCE_FILES sorting/radixsort.cpp)
 add_executable(algorithms ${SOURCE_FILES})
