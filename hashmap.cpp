@@ -5,8 +5,8 @@
 using namespace std;
 
 class HashMap {
-    typedef vector<list<pair<int, int>>> Table;
     typedef list<pair<int, int>> Bucket;
+    typedef vector<Bucket> Table;
 
     Table table;
     int entries;
@@ -18,10 +18,13 @@ class HashMap {
     void grow() {
         Table rehashTable(table);
         table.assign(table.size() * 2, Bucket());
+        entries = 0;
 
         for (auto it = rehashTable.begin(); it != rehashTable.end(); ++it)
             for (auto node = it->begin(); node != it->end(); ++node)
                 this->insert(*node);
+        
+        cout << "New table size: " << table.size() << endl;
     }
 
     Bucket::iterator find(Bucket::iterator begin, Bucket::iterator end, int key) {
@@ -48,7 +51,7 @@ public:
 
         ++entries;
 
-        if (entries / table.size() > 0.7)
+        if (double(entries) / table.size() > 0.7)
             grow();
     }
 
@@ -84,4 +87,12 @@ int main() {
     cout << hashmap.get(5).second << endl;
     hashmap.remove(5);
     cout << hashmap.get(5).second << endl;
+
+    cout << "grow check" << endl;
+    int size = 10;
+    double load_factor = 0.7;
+    HashMap hashmap1(size);
+    for (int i = 0; i < size * load_factor + 1; ++i) {
+        hashmap1.insert(i, i);
+    }
 }

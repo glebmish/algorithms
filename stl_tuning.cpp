@@ -94,7 +94,7 @@ void tune_priority_queue() {
     }
     cout << endl;
 
-    cout << "Ordered from the closest to 7 to the farthest" << endl;
+    cout << "Ordered from the farthest to 7 to the closest" << endl;
     struct CmpCloseTo7 {
         bool operator()(const int a, const int b) const {
             return abs(a - 7) < abs(b - 7);
