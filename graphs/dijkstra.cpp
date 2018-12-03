@@ -1,13 +1,15 @@
 #include <vector>
 #include <iostream>
 #include <iterator>
+#include <queue>
+#include <utility>
 using namespace std;
-
-// O(n^2 + m)
 
 typedef vector<vector<pair<int, int>>> Graph;
 #define INF 10000
 
+
+// O(n^2 + m)
 vector<int> dijkstra(Graph &graph, int from) {
     vector<int> dist(graph.size(), INF);
     dist[from] = 0;
@@ -33,6 +35,34 @@ vector<int> dijkstra(Graph &graph, int from) {
     return dist;
 }
 
+// O(n*log(n)+m*log(n)) 
+vector<int> dijkstra_with_heap(Graph &graph, int from) {
+    vector<int> dist(graph.size(), INF);
+    dist[from] = 0;
+
+    priority_queue<pair<int, int>> q;
+    q.emplace(0, from);
+
+    while (!q.empty()) {
+        pair<int, int> cur = q.top();
+        q.pop();
+
+        if (dist[cur.second] != cur.first) {
+            continue;
+        }
+
+        for (auto next : graph[cur.second]) {
+            int newdist = dist[cur.second] + next.second;
+            if (newdist < dist[next.first]) {
+                dist[next.first] = newdist;
+                q.emplace(dist[next.first], next.first);
+            }
+        }
+    }
+
+    return dist;
+}
+
 int main() {
     int n, m;
     cin >> n >> m;
@@ -49,7 +79,7 @@ int main() {
     int from;
     cin >> from;
 
-    vector<int> pathes = dijkstra(graph, from);
+    vector<int> pathes = dijkstra_with_heap(graph, from);
     copy(pathes.begin(), pathes.end(), ostream_iterator<int>(cout, " "));
 }
 
